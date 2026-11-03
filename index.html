@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7f3">
+  <meta name="description" content="A tidy little library of useful files, ready to download.">
+  <title>Goodfile — Downloads, ready when you are</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f6f7f3;
+      --surface: #fff;
+      --ink: #172d28;
+      --muted: #687772;
+      --line: #e4e9e3;
+      --green: #245c4e;
+      --green-dark: #19493d;
+      --mint: #e6f3eb;
+      --coral: #e97459;
+      --yellow: #f4d774;
+      --blue: #dceaf2;
+      --shadow: 0 16px 46px rgba(32, 63, 52, .08);
+      font-family: "DM Sans", "Avenir Next", sans-serif;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      background-color: var(--paper);
+      background-image: radial-gradient(rgba(38, 77, 62, .08) .7px, transparent .7px);
+      background-size: 15px 15px;
+    }
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+    a { color: inherit; }
+
+    .shell { width: min(1120px, calc(100% - 48px)); margin-inline: auto; }
+    .topbar {
+      height: 78px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(32, 63, 52, .12);
+    }
+    .brand { display: inline-flex; gap: 11px; align-items: center; text-decoration: none; }
+    .brand-mark {
+      width: 35px;
+      height: 35px;
+      display: grid;
+      place-items: center;
+      border-radius: 11px;
+      color: white;
+      background: var(--green);
+      transform: rotate(-5deg);
+    }
+    .brand-mark svg { transform: rotate(5deg); }
+    .brand-name { font-size: 19px; font-weight: 700; letter-spacing: -.5px; }
+    .brand-name span { color: var(--green); }
+    .top-note { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 13px; }
+    .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #5da77b; box-shadow: 0 0 0 3px #dcecdf; }
+
+    main { padding: 45px 0 76px; }
+    .intro {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 32px;
+      margin-bottom: 30px;
+      animation: rise .55s ease both;
+    }
+    .eyebrow, .mono { font-family: "Space Mono", monospace; }
+    .eyebrow { margin: 0 0 12px; color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: 1.15px; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(36px, 5vw, 52px); line-height: 1.05; letter-spacing: -2.4px; font-weight: 600; }
+    .intro-copy { max-width: 430px; margin: 13px 0 0; color: var(--muted); font-size: 15px; line-height: 1.65; }
+    .library-count {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255,255,255,.82);
+      box-shadow: 0 6px 20px rgba(32,63,52,.04);
+    }
+    .count-icon { width: 35px; height: 35px; display: grid; place-items: center; border-radius: 10px; background: var(--yellow); color: #443819; }
+    .count-value { font-size: 15px; font-weight: 700; }
+    .count-label { margin-top: 2px; color: var(--muted); font-size: 11px; }
+
+    .library {
+      overflow: hidden;
+      border: 1px solid #e6e9e3;
+      border-radius: 17px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      animation: rise .65s .08s ease both;
+    }
+    .toolbar { padding: 20px 22px 0; }
+    .toolbar-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .search-wrap { position: relative; flex: 1; max-width: 410px; }
+    .search-icon { position: absolute; top: 50%; left: 14px; color: #75827d; transform: translateY(-50%); pointer-events: none; }
+    .search {
+      width: 100%;
+      height: 44px;
+      padding: 0 14px 0 42px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      outline: none;
+      background: #fbfcfa;
+      color: var(--ink);
+      font-size: 13px;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .search:focus { border-color: #83aa98; box-shadow: 0 0 0 3px rgba(80, 140, 108, .13); }
+    .search::placeholder { color: #8a9691; }
+    .sort-wrap { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 12px; }
+    .sort-select { min-height: 38px; padding: 0 30px 0 10px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: white; font-size: 12px; cursor: pointer; }
+    .tabs { display: flex; gap: 24px; margin-top: 23px; border-bottom: 1px solid var(--line); }
+    .tab {
+      position: relative;
+      min-height: 43px;
+      padding: 0 2px;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color .18s;
+    }
+    .tab:hover, .tab[aria-selected="true"] { color: var(--green-dark); }
+    .tab[aria-selected="true"]::after { position: absolute; right: 0; bottom: -1px; left: 0; height: 2px; background: var(--green); content: ""; }
+    .tab-count { margin-left: 5px; color: #92a09a; font-family: "Space Mono", monospace; font-size: 10px; }
+
+    .file-list { padding: 0 22px; }
+    .list-head, .file-row { display: grid; grid-template-columns: minmax(230px, 1.6fr) minmax(110px, .7fr) minmax(90px, .55fr) 116px; align-items: center; column-gap: 18px; }
+    .list-head { min-height: 40px; color: #89958f; font-family: "Space Mono", monospace; font-size: 9px; letter-spacing: .8px; text-transform: uppercase; }
+    .file-row { min-height: 82px; border-top: 1px solid #edf0ec; animation: rowIn .36s ease both; }
+    .file-info { min-width: 0; display: flex; align-items: center; gap: 13px; }
+    .file-icon {
+      position: relative;
+      flex: 0 0 43px;
+      width: 43px;
+      height: 48px;
+      display: grid;
+      place-items: end center;
+      padding-bottom: 8px;
+      border-radius: 7px 7px 9px 9px;
+      color: var(--green-dark);
+      background: var(--mint);
+      font-family: "Space Mono", monospace;
+      font-size: 9px;
+      font-weight: 700;
+    }
+    .file-icon::before { position: absolute; top: 0; right: 0; width: 12px; height: 12px; border-radius: 0 6px 0 4px; background: rgba(255,255,255,.8); content: ""; }
+    .file-icon.csv { color: #765e0c; background: #f9f0cf; }
+    .file-icon.json { color: #865240; background: #f8e6dd; }
+    .file-icon.txt { color: #466578; background: var(--blue); }
+    .file-title { overflow: hidden; color: var(--ink); font-size: 14px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+    .file-desc { overflow: hidden; margin-top: 4px; color: #85918b; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+    .file-category { color: #697770; font-size: 12px; }
+    .file-size { color: #697770; font-family: "Space Mono", monospace; font-size: 11px; }
+    .row-action { display: flex; justify-content: end; }
+    .download-btn {
+      min-height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 12px;
+      border: 1px solid #dce8df;
+      border-radius: 8px;
+      color: var(--green-dark);
+      background: #f5faf6;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .18s, border-color .18s, transform .18s;
+    }
+    .download-btn:hover { border-color: #a7c7b1; background: #eaf5ed; transform: translateY(-1px); }
+    .download-btn:active { transform: translateY(0); }
+    .download-btn:focus-visible, .tab:focus-visible, .sort-select:focus-visible { outline: 3px solid rgba(80,140,108,.3); outline-offset: 2px; }
+    .empty-state { padding: 50px 20px; color: var(--muted); text-align: center; font-size: 14px; }
+    .empty-state strong { display: block; margin-bottom: 6px; color: var(--ink); font-size: 16px; }
+    .library-foot { min-height: 53px; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 0 22px; border-top: 1px solid var(--line); color: #829089; font-size: 11px; }
+    .foot-note { display: inline-flex; align-items: center; gap: 7px; }
+    .foot-note svg { color: #538367; }
+    .toast { position: fixed; right: 24px; bottom: 24px; z-index: 3; display: flex; align-items: center; gap: 10px; max-width: min(360px, calc(100vw - 32px)); padding: 13px 16px; border: 1px solid #d2e6d7; border-radius: 10px; color: var(--green-dark); background: white; box-shadow: 0 12px 35px rgba(24,56,43,.16); font-size: 13px; opacity: 0; transform: translateY(12px); pointer-events: none; transition: opacity .2s, transform .2s; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast svg { flex: 0 0 auto; }
+    .page-foot { display: flex; justify-content: space-between; gap: 20px; padding-top: 20px; color: #84918b; font-size: 11px; }
+    .page-foot span:last-child { font-family: "Space Mono", monospace; font-size: 10px; }
+
+    @keyframes rise { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes rowIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
+    @media (max-width: 700px) {
+      .shell { width: min(100% - 30px, 540px); }
+      .topbar { height: 67px; }
+      .top-note { font-size: 11px; }
+      main { padding-top: 34px; }
+      .intro { align-items: start; }
+      .library-count { display: none; }
+      .toolbar { padding: 16px 15px 0; }
+      .toolbar-top { align-items: stretch; flex-direction: column; }
+      .search-wrap { max-width: none; }
+      .sort-wrap { justify-content: space-between; }
+      .sort-select { flex: 1; max-width: 185px; }
+      .tabs { gap: 19px; margin-top: 14px; }
+      .file-list { padding: 0 15px; }
+      .list-head, .file-row { grid-template-columns: minmax(0, 1fr) 94px; column-gap: 10px; }
+      .list-head span:nth-child(2), .list-head span:nth-child(3), .file-category, .file-size { display: none; }
+      .file-row { min-height: 76px; }
+      .row-action { grid-column: 2; grid-row: 1; }
+      .download-btn { width: 90px; padding-inline: 8px; }
+      .file-info { grid-column: 1; grid-row: 1; gap: 10px; }
+      .file-icon { flex-basis: 38px; width: 38px; height: 43px; }
+      .file-title { font-size: 12px; }
+      .file-desc { font-size: 10px; }
+      .library-foot { align-items: start; flex-direction: column; justify-content: center; gap: 7px; padding: 11px 15px; }
+      .page-foot { flex-direction: column; gap: 7px; }
+    }
+    @media (max-width: 380px) {
+      .brand-name { font-size: 17px; }
+      .top-note { gap: 7px; font-size: 10px; }
+      .tabs { gap: 14px; }
+      .tab { font-size: 12px; }
+      h1 { letter-spacing: -1.6px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar shell">
+    <a class="brand" href="#" aria-label="Goodfile home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 3.75v10.5m0 0 4-4m-4 4-4-4M5.5 15.75v2.5a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <span class="brand-name">good<span>file</span></span>
+    </a>
+    <div class="top-note"><span class="live-dot" aria-hidden="true"></span> The little library is open</div>
+  </header>
+
+  <main class="shell">
+    <section class="intro" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">A small collection of useful things</p>
+        <h1 id="page-title">Downloads, ready<br>when you are.</h1>
+        <p class="intro-copy">Thoughtful little files for your next big idea. Browse the shelf, find what you need, and take it with you.</p>
+      </div>
+      <div class="library-count" aria-label="4 files available">
+        <span class="count-icon" aria-hidden="true">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M5 5.75A1.75 1.75 0 0 1 6.75 4h7.5L19 8.75v9.5A1.75 1.75 0 0 1 17.25 20h-10.5A1.75 1.75 0 0 1 5 18.25V5.75Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 4v5h5M8.5 13h7m-7 3h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </span>
+        <span><span class="count-value">04 files</span><span class="count-label">all ready to go</span></span>
+      </div>
+    </section>
+
+    <section class="library" aria-label="Download library">
+      <div class="toolbar">
+        <div class="toolbar-top">
+          <label class="search-wrap">
+            <svg class="search-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.3" stroke="currentColor" stroke-width="1.7"/><path d="m15.4 15.4 4.1 4.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            <input id="search" class="search" type="search" placeholder="Search the library..." autocomplete="off" aria-label="Search files">
+          </label>
+          <label class="sort-wrap" for="sort">Sort by
+            <select id="sort" class="sort-select">
+              <option value="featured">Featured</option>
+              <option value="name">Name, A to Z</option>
+              <option value="size">File size</option>
+              <option value="type">File type</option>
+            </select>
+          </label>
+        </div>
+        <div class="tabs" role="tablist" aria-label="File categories">
+          <button class="tab" type="button" role="tab" aria-selected="true" data-category="all">All <span class="tab-count">04</span></button>
+          <button class="tab" type="button" role="tab" aria-selected="false" data-category="documents">Documents <span class="tab-count">02</span></button>
+          <button class="tab" type="button" role="tab" aria-selected="false" data-category="data">Data <span class="tab-count">01</span></button>
+          <button class="tab" type="button" role="tab" aria-selected="false" data-category="code">Code <span class="tab-count">01</span></button>
+        </div>
+      </div>
+
+      <div class="file-list" id="file-list" role="tabpanel" aria-live="polite">
+        <div class="list-head" aria-hidden="true"><span>Name</span><span>Category</span><span>Size</span><span></span></div>
+        <div id="rows"></div>
+      </div>
+      <div class="library-foot">
+        <span id="result-count">Showing 4 files</span>
+        <span class="foot-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5 19 6v5.1c0 4.4-2.9 7.7-7 9.4-4.1-1.7-7-5-7-9.4V6l7-2.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg> Files download directly to your device</span>
+      </div>
+    </section>
+    <footer class="page-foot"><span>Made for curious minds and unfinished projects.</span><span>GOODFILE / 2025</span></footer>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12.5 4.2 4.2L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span id="toast-message">Your download is ready.</span>
+  </div>
+
+  <script>
+    const files = [
+      {
+        id: "field-notes",
+        name: "A few notes on starting",
+        filename: "field-notes.md",
+        description: "A gentle nudge for your next idea",
+        extension: "MD",
+        type: "documents",
+        category: "Document",
+        mime: "text/markdown;charset=utf-8",
+        content: "# A few notes on starting\n\nYou do not need the whole plan. You need the next useful step.\n\n## Make room\n\nWrite down what you are trying to make, who it is for, and what would make it feel finished enough to share.\n\n## Start small\n\nPick one thing you can do in twenty minutes. Make it visible. Then decide what comes next.\n\n## Keep going\n\nGood work is usually a series of small, honest attempts. Leave yourself a note about where to pick it up tomorrow.\n"
+      },
+      {
+        id: "budget-planner",
+        name: "Simple project planner",
+        filename: "project-planner.csv",
+        description: "A clean starting point for the numbers",
+        extension: "CSV",
+        type: "data",
+        category: "Spreadsheet",
+        mime: "text/csv;charset=utf-8",
+        content: "Item,Category,Estimated Cost,Actual Cost,Notes\nResearch,Planning,0,0,\nMaterials,Production,0,0,\nTools,Production,0,0,\nLaunch,Distribution,0,0,\nContingency,Planning,0,0,\n"
+      },
+      {
+        id: "palette",
+        name: "Fresh start color palette",
+        filename: "fresh-start-palette.json",
+        description: "Four colors to get a project moving",
+        extension: "JSON",
+        type: "code",
+        category: "Code",
+        mime: "application/json;charset=utf-8",
+        content: JSON.stringify({ name: "Fresh Start", colors: [{ name: "Canopy", hex: "#245C4E" }, { name: "Morning Paper", hex: "#F6F7F3" }, { name: "Tangerine", hex: "#E97459" }, { name: "Sunbeam", hex: "#F4D774" }] }, null, 2) + "\n"
+      },
+      {
+        id: "weekly-reset",
+        name: "The weekly reset list",
+        filename: "weekly-reset.txt",
+        description: "A low-pressure end-of-week checklist",
+        extension: "TXT",
+        type: "documents",
+        category: "Document",
+        mime: "text/plain;charset=utf-8",
+        content: "THE WEEKLY RESET\n\n[ ] Write down what is still on your mind\n[ ] Choose one thing to carry into next week\n[ ] Close the tabs you no longer need\n[ ] Leave a kind note for Monday-you\n[ ] Call it done\n\nA clear next step is enough.\n"
+      }
+    ];
+
+    const rows = document.querySelector("#rows");
+    const search = document.querySelector("#search");
+    const sort = document.querySelector("#sort");
+    const tabs = [...document.querySelectorAll(".tab")];
+    const resultCount = document.querySelector("#result-count");
+    const toast = document.querySelector("#toast");
+    const toastMessage = document.querySelector("#toast-message");
+    let activeCategory = "all";
+    let toastTimer;
+
+    function formatSize(text) {
+      const bytes = new TextEncoder().encode(text).length;
+      return bytes < 1024 ? `${bytes} B` : `${(bytes / 1024).toFixed(1)} KB`;
+    }
+
+    function getVisibleFiles() {
+      const query = search.value.trim().toLowerCase();
+      const visible = files.filter(file => {
+        const matchesCategory = activeCategory === "all" || file.type === activeCategory;
+        const matchesQuery = `${file.name} ${file.filename} ${file.description} ${file.category}`.toLowerCase().includes(query);
+        return matchesCategory && matchesQuery;
+      });
+      if (sort.value === "name") visible.sort((a, b) => a.name.localeCompare(b.name));
+      if (sort.value === "size") visible.sort((a, b) => new TextEncoder().encode(a.content).length - new TextEncoder().encode(b.content).length);
+      if (sort.value === "type") visible.sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
+      return visible;
+    }
+
+    function render() {
+      const visible = getVisibleFiles();
+      rows.replaceChildren();
+      if (visible.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.innerHTML = "<strong>No files found</strong>Try a different search or category.";
+        rows.append(empty);
+      } else {
+        visible.forEach((file, index) => {
+          const row = document.createElement("article");
+          row.className = "file-row";
+          row.style.animationDelay = `${Math.min(index * 45, 180)}ms`;
+          row.innerHTML = `
+            <div class="file-info">
+              <span class="file-icon ${file.extension.toLowerCase()}" aria-hidden="true">${file.extension}</span>
+              <div class="file-text">
+                <div class="file-title">${file.name}</div>
+                <div class="file-desc">${file.description}</div>
+              </div>
+            </div>
+            <span class="file-category">${file.category}</span>
+            <span class="file-size">${formatSize(file.content)}</span>
+            <div class="row-action">
+              <button class="download-btn" type="button" data-download="${file.id}" aria-label="Download ${file.filename}">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.75v10.5m0 0 4-4m-4 4-4-4M5.5 15.75v2.5a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Download
+              </button>
+            </div>`;
+          rows.append(row);
+        });
+      }
+      resultCount.textContent = `Showing ${visible.length} ${visible.length === 1 ? "file" : "files"}`;
+    }
+
+    function downloadFile(file) {
+      const blob = new Blob([file.content], { type: file.mime });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = file.filename;
+      document.body.append(anchor);
+      anchor.click();
+      anchor.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      toastMessage.textContent = `${file.filename} is on its way.`;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+
+    tabs.forEach(tab => tab.addEventListener("click", () => {
+      activeCategory = tab.dataset.category;
+      tabs.forEach(item => item.setAttribute("aria-selected", String(item === tab)));
+      render();
+    }));
+    search.addEventListener("input", render);
+    sort.addEventListener("change", render);
+    rows.addEventListener("click", event => {
+      const button = event.target.closest("[data-download]");
+      if (!button) return;
+      const file = files.find(item => item.id === button.dataset.download);
+      if (file) downloadFile(file);
+    });
+
+    render();
+  </script>
+</body>
+</html>
